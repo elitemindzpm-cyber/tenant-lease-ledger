@@ -10,33 +10,154 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as TenantRouteImport } from './routes/_tenant'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as TenantAccountRouteImport } from './routes/_tenant.account'
+import { Route as TenantBookingsRouteImport } from './routes/_tenant.bookings'
+import { Route as TenantDocumentsRouteImport } from './routes/_tenant.documents'
+import { Route as TenantHomeRouteImport } from './routes/_tenant.home'
+import { Route as TenantLeaseRouteImport } from './routes/_tenant.lease'
+import { Route as TenantPaymentsRouteImport } from './routes/_tenant.payments'
+import { Route as TenantRequestsRouteImport } from './routes/_tenant.requests'
+import { Route as TenantVisitorsRouteImport } from './routes/_tenant.visitors'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TenantRoute = TenantRouteImport.update({
+  id: '/_tenant',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TenantAccountRoute = TenantAccountRouteImport.update({
+  id: '/account',
+  path: '/account',
+  getParentRoute: () => TenantRoute,
+} as any)
+const TenantBookingsRoute = TenantBookingsRouteImport.update({
+  id: '/bookings',
+  path: '/bookings',
+  getParentRoute: () => TenantRoute,
+} as any)
+const TenantDocumentsRoute = TenantDocumentsRouteImport.update({
+  id: '/documents',
+  path: '/documents',
+  getParentRoute: () => TenantRoute,
+} as any)
+const TenantHomeRoute = TenantHomeRouteImport.update({
+  id: '/home',
+  path: '/home',
+  getParentRoute: () => TenantRoute,
+} as any)
+const TenantLeaseRoute = TenantLeaseRouteImport.update({
+  id: '/lease',
+  path: '/lease',
+  getParentRoute: () => TenantRoute,
+} as any)
+const TenantPaymentsRoute = TenantPaymentsRouteImport.update({
+  id: '/payments',
+  path: '/payments',
+  getParentRoute: () => TenantRoute,
+} as any)
+const TenantRequestsRoute = TenantRequestsRouteImport.update({
+  id: '/requests',
+  path: '/requests',
+  getParentRoute: () => TenantRoute,
+} as any)
+const TenantVisitorsRoute = TenantVisitorsRouteImport.update({
+  id: '/visitors',
+  path: '/visitors',
+  getParentRoute: () => TenantRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/account': typeof TenantAccountRoute
+  '/bookings': typeof TenantBookingsRoute
+  '/documents': typeof TenantDocumentsRoute
+  '/home': typeof TenantHomeRoute
+  '/lease': typeof TenantLeaseRoute
+  '/payments': typeof TenantPaymentsRoute
+  '/requests': typeof TenantRequestsRoute
+  '/visitors': typeof TenantVisitorsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/account': typeof TenantAccountRoute
+  '/bookings': typeof TenantBookingsRoute
+  '/documents': typeof TenantDocumentsRoute
+  '/home': typeof TenantHomeRoute
+  '/lease': typeof TenantLeaseRoute
+  '/payments': typeof TenantPaymentsRoute
+  '/requests': typeof TenantRequestsRoute
+  '/visitors': typeof TenantVisitorsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_tenant': typeof TenantRouteWithChildren
+  '/reset-password': typeof ResetPasswordRoute
+  '/_tenant/account': typeof TenantAccountRoute
+  '/_tenant/bookings': typeof TenantBookingsRoute
+  '/_tenant/documents': typeof TenantDocumentsRoute
+  '/_tenant/home': typeof TenantHomeRoute
+  '/_tenant/lease': typeof TenantLeaseRoute
+  '/_tenant/payments': typeof TenantPaymentsRoute
+  '/_tenant/requests': typeof TenantRequestsRoute
+  '/_tenant/visitors': typeof TenantVisitorsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/reset-password'
+    | '/account'
+    | '/bookings'
+    | '/documents'
+    | '/home'
+    | '/lease'
+    | '/payments'
+    | '/requests'
+    | '/visitors'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/reset-password'
+    | '/account'
+    | '/bookings'
+    | '/documents'
+    | '/home'
+    | '/lease'
+    | '/payments'
+    | '/requests'
+    | '/visitors'
+  id:
+    | '__root__'
+    | '/'
+    | '/_tenant'
+    | '/reset-password'
+    | '/_tenant/account'
+    | '/_tenant/bookings'
+    | '/_tenant/documents'
+    | '/_tenant/home'
+    | '/_tenant/lease'
+    | '/_tenant/payments'
+    | '/_tenant/requests'
+    | '/_tenant/visitors'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  TenantRoute: typeof TenantRouteWithChildren
+  ResetPasswordRoute: typeof ResetPasswordRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +169,108 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_tenant': {
+      id: '/_tenant'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof TenantRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_tenant/account': {
+      id: '/_tenant/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof TenantAccountRouteImport
+      parentRoute: typeof TenantRoute
+    }
+    '/_tenant/bookings': {
+      id: '/_tenant/bookings'
+      path: '/bookings'
+      fullPath: '/bookings'
+      preLoaderRoute: typeof TenantBookingsRouteImport
+      parentRoute: typeof TenantRoute
+    }
+    '/_tenant/documents': {
+      id: '/_tenant/documents'
+      path: '/documents'
+      fullPath: '/documents'
+      preLoaderRoute: typeof TenantDocumentsRouteImport
+      parentRoute: typeof TenantRoute
+    }
+    '/_tenant/home': {
+      id: '/_tenant/home'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof TenantHomeRouteImport
+      parentRoute: typeof TenantRoute
+    }
+    '/_tenant/lease': {
+      id: '/_tenant/lease'
+      path: '/lease'
+      fullPath: '/lease'
+      preLoaderRoute: typeof TenantLeaseRouteImport
+      parentRoute: typeof TenantRoute
+    }
+    '/_tenant/payments': {
+      id: '/_tenant/payments'
+      path: '/payments'
+      fullPath: '/payments'
+      preLoaderRoute: typeof TenantPaymentsRouteImport
+      parentRoute: typeof TenantRoute
+    }
+    '/_tenant/requests': {
+      id: '/_tenant/requests'
+      path: '/requests'
+      fullPath: '/requests'
+      preLoaderRoute: typeof TenantRequestsRouteImport
+      parentRoute: typeof TenantRoute
+    }
+    '/_tenant/visitors': {
+      id: '/_tenant/visitors'
+      path: '/visitors'
+      fullPath: '/visitors'
+      preLoaderRoute: typeof TenantVisitorsRouteImport
+      parentRoute: typeof TenantRoute
+    }
   }
 }
 
+interface TenantRouteChildren {
+  TenantAccountRoute: typeof TenantAccountRoute
+  TenantBookingsRoute: typeof TenantBookingsRoute
+  TenantDocumentsRoute: typeof TenantDocumentsRoute
+  TenantHomeRoute: typeof TenantHomeRoute
+  TenantLeaseRoute: typeof TenantLeaseRoute
+  TenantPaymentsRoute: typeof TenantPaymentsRoute
+  TenantRequestsRoute: typeof TenantRequestsRoute
+  TenantVisitorsRoute: typeof TenantVisitorsRoute
+}
+
+const TenantRouteChildren: TenantRouteChildren = {
+  TenantAccountRoute: TenantAccountRoute,
+  TenantBookingsRoute: TenantBookingsRoute,
+  TenantDocumentsRoute: TenantDocumentsRoute,
+  TenantHomeRoute: TenantHomeRoute,
+  TenantLeaseRoute: TenantLeaseRoute,
+  TenantPaymentsRoute: TenantPaymentsRoute,
+  TenantRequestsRoute: TenantRequestsRoute,
+  TenantVisitorsRoute: TenantVisitorsRoute,
+}
+
+const TenantRouteWithChildren =
+  TenantRoute._addFileChildren(TenantRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  TenantRoute: TenantRouteWithChildren,
+  ResetPasswordRoute: ResetPasswordRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
