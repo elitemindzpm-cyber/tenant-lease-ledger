@@ -1,4 +1,6 @@
+import { useQuery } from "@tanstack/react-query";
 import { backend } from "./backend";
+import { useSession } from "./session";
 
 // Maintenance requests live in the production backend (table: maintenance_requests).
 // Tenants only ever see their own rows — scoped by their account email via RLS.
@@ -41,6 +43,17 @@ function toTicket(r: any): Ticket {
     timeline: Array.isArray(r.timeline) ? r.timeline : [],
     rating: r.rating ?? undefined,
   };
+}
+
+export function useTickets() {
+  const { session } = useSession();
+  const email = session?.user.email || "";
+  return useQuery({
+    queryKey: ["tickets", email],
+    enabled: !!email,
+    staleTime: 30_000,
+    queryFn: () => loadTickets(email),
+  });
 }
 
 export async function loadTickets(email: string): Promise<Ticket[]> {

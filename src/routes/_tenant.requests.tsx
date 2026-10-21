@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Plus, Star, Wrench } from "lucide-react";
 import { toast } from "sonner";
 import { Empty, LoadingBlock, Panel, ScreenHeader, StatusPill } from "@/components/mobile";
@@ -14,7 +14,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { screenHead } from "@/lib/head";
 import { useSession, useTenant } from "@/lib/session";
 import { formatDate } from "@/lib/tenant-data";
-import { createTicket, loadTickets, updateTicket, type Ticket } from "@/lib/requests";
+import { createTicket, updateTicket, useTickets, type Ticket } from "@/lib/requests";
 
 export const Route = createFileRoute("/_tenant/requests")({
   head: () => screenHead("Repair requests", "Report problems in your home and track repairs."),
@@ -24,17 +24,6 @@ export const Route = createFileRoute("/_tenant/requests")({
 const CATEGORIES = ["Plumber", "Electrician", "HVAC & Chillers", "Carpenter", "Painter", "Pest Control", "Cleaning", "Intercom", "Appliances", "Other"];
 const AREAS = ["Kitchen", "Bedroom", "Bathroom", "Living Room", "Balcony", "Unit / Apartment", "Parking", "Common Area"];
 const PRIORITIES = ["Low", "Medium", "High", "Urgent"] as const;
-
-export function useTickets() {
-  const { session } = useSession();
-  const email = session?.user.email || "";
-  return useQuery({
-    queryKey: ["tickets", email],
-    enabled: !!email,
-    staleTime: 30_000,
-    queryFn: () => loadTickets(email),
-  });
-}
 
 function RequestsScreen() {
   const { session } = useSession();
