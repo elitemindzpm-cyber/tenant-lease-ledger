@@ -99,15 +99,18 @@ function SignIn() {
           </button>
         </form>
 
-        <button
+        <Button
+          type="button"
+          variant="outline"
           onClick={() => {
             enterDemo();
             nav({ to: "/home" });
           }}
-          className="mt-6 text-center text-sm font-medium text-gold underline-offset-4 hover:underline"
+          className="mt-6 h-12 w-full border-gold bg-transparent text-base font-semibold text-gold hover:bg-gold/10 hover:text-gold"
         >
           Explore with the demo tenant
-        </button>
+        </Button>
+        <p className="mt-2 text-center text-xs opacity-60">No password needed — tap the button above to look around.</p>
         <p className="mt-auto pt-8 text-center text-xs opacity-60">Use the same account you use on the Zyno website.</p>
       </div>
     </main>
