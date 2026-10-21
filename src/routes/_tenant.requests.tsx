@@ -45,8 +45,8 @@ function RequestsScreen() {
     mutationFn: () =>
       createTicket({
         email,
-        customerId: tenant?.customerId,
-        leaseId: tenant?.leases[0]?.id,
+        customerId: tenant?.customerId ?? null,
+        leaseId: tenant?.leases[0]?.id ?? null,
         byName: name,
         ...form,
       }),
