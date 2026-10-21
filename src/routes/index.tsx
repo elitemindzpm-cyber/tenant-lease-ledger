@@ -12,9 +12,9 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Sign in — Zyno Tenant" },
-      { name: "description", content: "Sign in to view your lease, cheques, repairs and bookings." },
+      { name: "description", content: "Sign in to view your lease, cheques, repairs and documents." },
       { property: "og:title", content: "Zyno Tenant app" },
-      { property: "og:description", content: "Your lease, payments, repairs and bookings in one app." },
+      { property: "og:description", content: "Your lease, payments, repairs and documents in one app." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -24,7 +24,7 @@ export const Route = createFileRoute("/")({
 
 function SignIn() {
   const nav = useNavigate();
-  const { ready, signedIn, enterDemo } = useSession();
+  const { ready, signedIn } = useSession();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
@@ -71,7 +71,7 @@ function SignIn() {
           <br />
           <span className="text-gold">in your pocket.</span>
         </h1>
-        <p className="mt-3 text-sm opacity-80">Lease, cheques, repairs and bookings — synced with your property office.</p>
+        <p className="mt-3 text-sm opacity-80">Lease, cheques, repairs and documents — synced with your property office.</p>
 
         <form onSubmit={submit} className="mt-10 space-y-4 rounded-3xl bg-card p-6 text-card-foreground shadow-card">
           <h2 className="text-lg font-semibold">{mode === "login" ? "Sign in" : "Reset password"}</h2>
@@ -99,18 +99,6 @@ function SignIn() {
           </button>
         </form>
 
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => {
-            enterDemo();
-            nav({ to: "/home" });
-          }}
-          className="mt-6 h-12 w-full border-gold bg-transparent text-base font-semibold text-gold hover:bg-gold/10 hover:text-gold"
-        >
-          Explore with the demo tenant
-        </Button>
-        <p className="mt-2 text-center text-xs opacity-60">No password needed — tap the button above to look around.</p>
         <p className="mt-auto pt-8 text-center text-xs opacity-60">Use the same account you use on the Zyno website.</p>
       </div>
     </main>
