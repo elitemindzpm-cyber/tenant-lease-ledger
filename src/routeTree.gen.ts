@@ -13,13 +13,11 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as TenantRouteImport } from './routes/_tenant'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as TenantAccountRouteImport } from './routes/_tenant.account'
-import { Route as TenantBookingsRouteImport } from './routes/_tenant.bookings'
 import { Route as TenantDocumentsRouteImport } from './routes/_tenant.documents'
 import { Route as TenantHomeRouteImport } from './routes/_tenant.home'
 import { Route as TenantLeaseRouteImport } from './routes/_tenant.lease'
 import { Route as TenantPaymentsRouteImport } from './routes/_tenant.payments'
 import { Route as TenantRequestsRouteImport } from './routes/_tenant.requests'
-import { Route as TenantVisitorsRouteImport } from './routes/_tenant.visitors'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -38,11 +36,6 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
 const TenantAccountRoute = TenantAccountRouteImport.update({
   id: '/account',
   path: '/account',
-  getParentRoute: () => TenantRoute,
-} as any)
-const TenantBookingsRoute = TenantBookingsRouteImport.update({
-  id: '/bookings',
-  path: '/bookings',
   getParentRoute: () => TenantRoute,
 } as any)
 const TenantDocumentsRoute = TenantDocumentsRouteImport.update({
@@ -70,35 +63,26 @@ const TenantRequestsRoute = TenantRequestsRouteImport.update({
   path: '/requests',
   getParentRoute: () => TenantRoute,
 } as any)
-const TenantVisitorsRoute = TenantVisitorsRouteImport.update({
-  id: '/visitors',
-  path: '/visitors',
-  getParentRoute: () => TenantRoute,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/reset-password': typeof ResetPasswordRoute
   '/account': typeof TenantAccountRoute
-  '/bookings': typeof TenantBookingsRoute
   '/documents': typeof TenantDocumentsRoute
   '/home': typeof TenantHomeRoute
   '/lease': typeof TenantLeaseRoute
   '/payments': typeof TenantPaymentsRoute
   '/requests': typeof TenantRequestsRoute
-  '/visitors': typeof TenantVisitorsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/reset-password': typeof ResetPasswordRoute
   '/account': typeof TenantAccountRoute
-  '/bookings': typeof TenantBookingsRoute
   '/documents': typeof TenantDocumentsRoute
   '/home': typeof TenantHomeRoute
   '/lease': typeof TenantLeaseRoute
   '/payments': typeof TenantPaymentsRoute
   '/requests': typeof TenantRequestsRoute
-  '/visitors': typeof TenantVisitorsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -106,13 +90,11 @@ export interface FileRoutesById {
   '/_tenant': typeof TenantRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/_tenant/account': typeof TenantAccountRoute
-  '/_tenant/bookings': typeof TenantBookingsRoute
   '/_tenant/documents': typeof TenantDocumentsRoute
   '/_tenant/home': typeof TenantHomeRoute
   '/_tenant/lease': typeof TenantLeaseRoute
   '/_tenant/payments': typeof TenantPaymentsRoute
   '/_tenant/requests': typeof TenantRequestsRoute
-  '/_tenant/visitors': typeof TenantVisitorsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -120,38 +102,32 @@ export interface FileRouteTypes {
     | '/'
     | '/reset-password'
     | '/account'
-    | '/bookings'
     | '/documents'
     | '/home'
     | '/lease'
     | '/payments'
     | '/requests'
-    | '/visitors'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/reset-password'
     | '/account'
-    | '/bookings'
     | '/documents'
     | '/home'
     | '/lease'
     | '/payments'
     | '/requests'
-    | '/visitors'
   id:
     | '__root__'
     | '/'
     | '/_tenant'
     | '/reset-password'
     | '/_tenant/account'
-    | '/_tenant/bookings'
     | '/_tenant/documents'
     | '/_tenant/home'
     | '/_tenant/lease'
     | '/_tenant/payments'
     | '/_tenant/requests'
-    | '/_tenant/visitors'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -190,13 +166,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TenantAccountRouteImport
       parentRoute: typeof TenantRoute
     }
-    '/_tenant/bookings': {
-      id: '/_tenant/bookings'
-      path: '/bookings'
-      fullPath: '/bookings'
-      preLoaderRoute: typeof TenantBookingsRouteImport
-      parentRoute: typeof TenantRoute
-    }
     '/_tenant/documents': {
       id: '/_tenant/documents'
       path: '/documents'
@@ -232,36 +201,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TenantRequestsRouteImport
       parentRoute: typeof TenantRoute
     }
-    '/_tenant/visitors': {
-      id: '/_tenant/visitors'
-      path: '/visitors'
-      fullPath: '/visitors'
-      preLoaderRoute: typeof TenantVisitorsRouteImport
-      parentRoute: typeof TenantRoute
-    }
   }
 }
 
 interface TenantRouteChildren {
   TenantAccountRoute: typeof TenantAccountRoute
-  TenantBookingsRoute: typeof TenantBookingsRoute
   TenantDocumentsRoute: typeof TenantDocumentsRoute
   TenantHomeRoute: typeof TenantHomeRoute
   TenantLeaseRoute: typeof TenantLeaseRoute
   TenantPaymentsRoute: typeof TenantPaymentsRoute
   TenantRequestsRoute: typeof TenantRequestsRoute
-  TenantVisitorsRoute: typeof TenantVisitorsRoute
 }
 
 const TenantRouteChildren: TenantRouteChildren = {
   TenantAccountRoute: TenantAccountRoute,
-  TenantBookingsRoute: TenantBookingsRoute,
   TenantDocumentsRoute: TenantDocumentsRoute,
   TenantHomeRoute: TenantHomeRoute,
   TenantLeaseRoute: TenantLeaseRoute,
   TenantPaymentsRoute: TenantPaymentsRoute,
   TenantRequestsRoute: TenantRequestsRoute,
-  TenantVisitorsRoute: TenantVisitorsRoute,
 }
 
 const TenantRouteWithChildren =
