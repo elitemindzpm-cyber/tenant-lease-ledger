@@ -1,10 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Bell, CalendarCheck2, CreditCard, FileText, FolderOpen, Phone, RefreshCw, UserCheck, Wrench } from "lucide-react";
+import { Bell, CreditCard, FileText, FolderOpen, Phone, RefreshCw, UserCheck, Wrench } from "lucide-react";
 import { Empty, LoadingBlock, Panel, Section, StatusPill } from "@/components/mobile";
 import { screenHead } from "@/lib/head";
-import { useSession, useTenant } from "@/lib/session";
+import { useTenant } from "@/lib/session";
 import { daysUntil, formatDate, formatQAR } from "@/lib/tenant-data";
-import { DEMO_TICKETS, useDeviceList, type Ticket } from "@/lib/local-store";
+import { useTickets } from "@/lib/requests";
 
 export const Route = createFileRoute("/_tenant/home")({
   head: () => screenHead("Home", "Your rent, lease and requests at a glance."),
@@ -13,8 +13,7 @@ export const Route = createFileRoute("/_tenant/home")({
 
 function HomeScreen() {
   const { data, isLoading, refetch, isFetching } = useTenant();
-  const { scope, isDemo } = useSession();
-  const [tickets] = useDeviceList<Ticket[]>(scope, "tickets", isDemo ? DEMO_TICKETS : []);
+  const { data: tickets } = useTickets();
 
   if (isLoading || !data) return <LoadingBlock />;
   const lease = data.leases[0];
@@ -22,7 +21,7 @@ function HomeScreen() {
   const paid = data.cheques.filter((c) => c.status === "cleared").reduce((s, c) => s + c.amount, 0);
   const total = data.cheques.reduce((s, c) => s + c.amount, 0);
   const daysLeft = daysUntil(lease?.endDate);
-  const openTickets = tickets.filter((t) => t.status === "open" || t.status === "in_progress").length;
+  const openTickets = (tickets || []).filter((t) => t.status === "open" || t.status === "in_progress").length;
   const first = data.profile.name.split(" ")[0];
 
   return (
@@ -76,10 +75,8 @@ function HomeScreen() {
           <Empty icon={<UserCheck className="h-6 w-6" />} title="We couldn't find your tenancy yet" text={`No tenant record matches ${data.profile.email}. Ask your property office to add this email to your tenant profile.`} />
         )}
 
-        <div className="grid grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 gap-3">
           <Quick to="/requests" icon={<Wrench className="h-5 w-5" />} label="Repair" />
-          <Quick to="/bookings" icon={<CalendarCheck2 className="h-5 w-5" />} label="Book" />
-          <Quick to="/visitors" icon={<UserCheck className="h-5 w-5" />} label="Visitors" />
           <Quick to="/documents" icon={<FolderOpen className="h-5 w-5" />} label="Docs" />
         </div>
 
@@ -128,7 +125,7 @@ function HomeScreen() {
   );
 }
 
-function Quick({ to, icon, label }: { to: "/requests" | "/bookings" | "/visitors" | "/documents"; icon: React.ReactNode; label: string }) {
+function Quick({ to, icon, label }: { to: "/requests" | "/documents"; icon: React.ReactNode; label: string }) {
   return (
     <Link to={to} className="flex flex-col items-center gap-1.5 rounded-2xl border bg-card py-3 text-xs font-medium shadow-card">
       <span className="rounded-full bg-secondary p-2.5 text-primary">{icon}</span>

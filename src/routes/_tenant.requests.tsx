@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Plus, Star, Wrench } from "lucide-react";
 import { toast } from "sonner";
-import { Empty, Panel, ScreenHeader, StatusPill } from "@/components/mobile";
+import { Empty, LoadingBlock, Panel, ScreenHeader, StatusPill } from "@/components/mobile";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,7 +14,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { screenHead } from "@/lib/head";
 import { useSession, useTenant } from "@/lib/session";
 import { formatDate } from "@/lib/tenant-data";
-import { DEMO_TICKETS, newId, today, useDeviceList, type Ticket } from "@/lib/local-store";
+import { createTicket, updateTicket, useTickets, type Ticket } from "@/lib/requests";
 
 export const Route = createFileRoute("/_tenant/requests")({
   head: () => screenHead("Repair requests", "Report problems in your home and track repairs."),
@@ -25,35 +26,52 @@ const AREAS = ["Kitchen", "Bedroom", "Bathroom", "Living Room", "Balcony", "Unit
 const PRIORITIES = ["Low", "Medium", "High", "Urgent"] as const;
 
 function RequestsScreen() {
-  const { scope, isDemo } = useSession();
-  const { data } = useTenant();
-  const [tickets, setTickets] = useDeviceList<Ticket[]>(scope, "tickets", isDemo ? DEMO_TICKETS : []);
+  const { session } = useSession();
+  const { data: tenant } = useTenant();
+  const qc = useQueryClient();
+  const email = session?.user.email || "";
+  const { data: tickets, isLoading, isError } = useTickets();
   const [tab, setTab] = useState("active");
   const [creating, setCreating] = useState(false);
   const [view, setView] = useState<Ticket | null>(null);
   const [form, setForm] = useState({ subject: "", description: "", category: "Plumber", area: "Kitchen", priority: "Medium" as Ticket["priority"], preferredTime: "" });
 
-  const list = tickets.filter((t) => (tab === "active" ? t.status === "open" || t.status === "in_progress" : t.status === "resolved" || t.status === "closed"));
-  const name = data?.profile.name || "Tenant";
+  const list = (tickets || []).filter((t) => (tab === "active" ? t.status === "open" || t.status === "in_progress" : t.status === "resolved" || t.status === "closed"));
+  const name = tenant?.profile.name || "Tenant";
+
+  const refresh = () => qc.invalidateQueries({ queryKey: ["tickets", email] });
+
+  const createMut = useMutation({
+    mutationFn: () =>
+      createTicket({
+        email,
+        customerId: tenant?.customerId ?? null,
+        leaseId: tenant?.leases[0]?.id ?? null,
+        byName: name,
+        ...form,
+      }),
+    onSuccess: () => {
+      refresh();
+      setCreating(false);
+      setForm({ ...form, subject: "", description: "", preferredTime: "" });
+      toast.success("Request submitted.");
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Could not submit the request."),
+  });
+
+  const updateMut = useMutation({
+    mutationFn: (args: { ticket: Ticket; patch: { status?: Ticket["status"]; rating?: number }; event: string }) =>
+      updateTicket({ id: args.ticket.id, email, patch: args.patch, event: args.event, byName: name, timeline: args.ticket.timeline }),
+    onSuccess: () => {
+      refresh();
+      setView(null);
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Could not update the request."),
+  });
 
   function create() {
     if (!form.subject.trim()) { toast.error("Add a short title."); return; }
-    const t: Ticket = {
-      id: newId("TKT"),
-      ...form,
-      status: "open",
-      createdAt: today(),
-      timeline: [{ date: today(), event: "Request raised by tenant", by: name }],
-    };
-    setTickets((p) => [t, ...p]);
-    setCreating(false);
-    setForm({ ...form, subject: "", description: "", preferredTime: "" });
-    toast.success("Request submitted.");
-  }
-
-  function update(id: string, patch: Partial<Ticket>, event: string) {
-    setTickets((p) => p.map((t) => (t.id === id ? { ...t, ...patch, timeline: [...t.timeline, { date: today(), event, by: name }] } : t)));
-    setView(null);
+    createMut.mutate();
   }
 
   return (
@@ -66,7 +84,11 @@ function RequestsScreen() {
             <TabsTrigger value="done">Completed</TabsTrigger>
           </TabsList>
         </Tabs>
-        {list.length === 0 ? (
+        {isLoading ? (
+          <LoadingBlock />
+        ) : isError ? (
+          <Empty icon={<Wrench className="h-6 w-6" />} title="Requests unavailable" text="We couldn't reach the maintenance system. Pull to refresh or try again shortly." />
+        ) : list.length === 0 ? (
           <Empty icon={<Wrench className="h-6 w-6" />} title="No requests" text="Something broken? Report it and track the repair here.">
             <Button onClick={() => setCreating(true)}>Report a problem</Button>
           </Empty>
@@ -81,7 +103,7 @@ function RequestsScreen() {
                       <StatusPill status={t.status} />
                     </div>
                     <p className="mt-1 text-sm text-muted-foreground">{t.category} · {t.area} · {t.priority}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">{t.id} · {formatDate(t.createdAt)}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{t.ref} · {formatDate(t.createdAt)}</p>
                   </Panel>
                 </button>
               </li>
@@ -109,7 +131,7 @@ function RequestsScreen() {
             </div>
             <div className="space-y-1.5"><Label>Details</Label><Textarea rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
             <div className="space-y-1.5"><Label>Best time to visit</Label><Input type="datetime-local" value={form.preferredTime} onChange={(e) => setForm({ ...form, preferredTime: e.target.value })} /></div>
-            <Button className="h-12 w-full" onClick={create}>Submit request</Button>
+            <Button className="h-12 w-full" disabled={createMut.isPending} onClick={create}>Submit request</Button>
           </div>
         </SheetContent>
       </Sheet>
@@ -132,14 +154,14 @@ function RequestsScreen() {
                   <div className="space-y-2">
                     <p className="text-sm font-medium">Rate the repair</p>
                     <div className="flex gap-1">{[1, 2, 3, 4, 5].map((n) => (
-                      <button key={n} aria-label={`${n} stars`} onClick={() => update(view.id, { rating: n, status: "closed" }, `Tenant confirmed fix and rated ${n}/5`)}>
+                      <button key={n} aria-label={`${n} stars`} disabled={updateMut.isPending} onClick={() => updateMut.mutate({ ticket: view, patch: { rating: n, status: "closed" }, event: `Tenant confirmed fix and rated ${n}/5` })}>
                         <Star className={`h-7 w-7 ${(view.rating || 0) >= n ? "fill-gold text-gold" : "text-muted-foreground"}`} />
                       </button>
                     ))}</div>
                   </div>
                 )}
                 {(view.status === "open" || view.status === "in_progress") && (
-                  <Button variant="outline" className="w-full" onClick={() => update(view.id, { status: "closed" }, "Request cancelled by tenant")}>Cancel request</Button>
+                  <Button variant="outline" className="w-full" disabled={updateMut.isPending} onClick={() => updateMut.mutate({ ticket: view, patch: { status: "closed" }, event: "Request cancelled by tenant" })}>Cancel request</Button>
                 )}
               </div>
             </>

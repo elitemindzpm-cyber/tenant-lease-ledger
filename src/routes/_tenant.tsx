@@ -9,7 +9,7 @@ export const Route = createFileRoute("/_tenant")({
 });
 
 function TenantLayout() {
-  const { ready, signedIn, isDemo } = useSession();
+  const { ready, signedIn } = useSession();
   const nav = useNavigate();
   useEffect(() => {
     if (ready && !signedIn) nav({ to: "/" });
@@ -19,11 +19,6 @@ function TenantLayout() {
 
   return (
     <div className="mx-auto min-h-screen max-w-md bg-background pb-24">
-      {isDemo && (
-        <div className="bg-gold px-4 py-1.5 text-center text-xs font-medium text-gold-foreground">
-          Demo tenant — sample data
-        </div>
-      )}
       <Outlet />
       <BottomNav />
     </div>

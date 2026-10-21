@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { CalendarCheck2, ChevronRight, FolderOpen, LogOut, ShieldCheck, UserCheck } from "lucide-react";
+import { ChevronRight, FolderOpen, LogOut, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { LoadingBlock, Panel, Row, ScreenHeader, Section } from "@/components/mobile";
 import { Button } from "@/components/ui/button";
@@ -19,7 +19,7 @@ export const Route = createFileRoute("/_tenant/account")({
 
 function AccountScreen() {
   const { data, isLoading } = useTenant();
-  const { scope, isDemo, signOut } = useSession();
+  const { scope, signOut } = useSession();
   const nav = useNavigate();
   const [prefs, setPrefs] = useDeviceList<Prefs>(scope, "prefs", { email: true, sms: false, whatsapp: true, reminders: true });
   const [pw, setPw] = useState("");
@@ -28,7 +28,6 @@ function AccountScreen() {
   const p = data.profile;
 
   async function changePassword() {
-    if (isDemo) { toast.error("Not available in the demo."); return; }
     if (pw.length < 8) { toast.error("Use at least 8 characters."); return; }
     setBusy(true);
     const { error } = await backend.auth.updateUser({ password: pw });
@@ -54,8 +53,6 @@ function AccountScreen() {
         </Panel>
 
         <Panel className="divide-y p-0">
-          <MenuLink to="/bookings" icon={<CalendarCheck2 className="h-5 w-5" />} label="Facility bookings" />
-          <MenuLink to="/visitors" icon={<UserCheck className="h-5 w-5" />} label="Visitor passes" />
           <MenuLink to="/documents" icon={<FolderOpen className="h-5 w-5" />} label="Documents" />
         </Panel>
 
@@ -97,7 +94,7 @@ function AccountScreen() {
   );
 }
 
-function MenuLink({ to, icon, label }: { to: "/bookings" | "/visitors" | "/documents"; icon: React.ReactNode; label: string }) {
+function MenuLink({ to, icon, label }: { to: "/documents"; icon: React.ReactNode; label: string }) {
   return (
     <Link to={to} className="flex items-center gap-3 p-4">
       <span className="text-primary">{icon}</span>
