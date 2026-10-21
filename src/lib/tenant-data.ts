@@ -62,8 +62,8 @@ export type TenantProfile = {
 };
 
 export type TenantBundle = {
-  isDemo: boolean;
   linked: boolean; // a tenant record was found in the live system
+  customerId: string | null;
   profile: TenantProfile;
   leases: TenantLease[];
   cheques: Cheque[];
@@ -177,7 +177,7 @@ export async function loadLiveTenant(email: string, fallbackName: string): Promi
     emergencyPhone: c?.emergency_contact_phone,
     verification: c?.verification_status,
   };
-  if (!c) return { isDemo: false, linked: false, profile, leases: [], cheques: [] };
+  if (!c) return { linked: false, customerId: null, profile, leases: [], cheques: [] };
 
   const { data: leaseRows } = await backend
     .from("leases")
@@ -209,64 +209,8 @@ export async function loadLiveTenant(email: string, fallbackName: string): Promi
     .map(toCheque)
     .sort((a, b) => (a.dueDate || "").localeCompare(b.dueDate || ""));
 
-  return { isDemo: false, linked: true, profile, leases, cheques };
+  return { linked: true, customerId: c.id, profile, leases, cheques };
 }
-
-/** Same demo tenant the production portal shows. */
-export const DEMO_BUNDLE: TenantBundle = {
-  isDemo: true,
-  linked: true,
-  profile: {
-    name: "Khalid Al-Mansouri",
-    email: "demo.tenant@zyno.qa",
-    phone: "+974 5512 3456",
-    qatarId: "28763400123",
-    qidExpiry: "2027-08-14",
-    nationality: "Qatar",
-    employer: "Qatar Energy",
-    emergencyName: "Fatima Al-Mansouri",
-    emergencyPhone: "+974 5598 7654",
-    verification: "Verified",
-  },
-  leases: [
-    {
-      id: "lease-001",
-      contractNumber: "ZY-2024-1201-AL",
-      status: "Active",
-      property: "Al Nakheel Residences",
-      propertyAddress: "West Bay, Doha",
-      unit: "A-1201",
-      floor: "12th Floor",
-      area: 142,
-      bedrooms: 2,
-      bathrooms: 2,
-      furnishing: "Semi-Furnished",
-      parking: "B-045",
-      annualRent: 60000,
-      monthlyRent: 5000,
-      paymentFrequency: "Quarterly",
-      installments: 4,
-      startDate: "2024-01-01",
-      endDate: "2026-12-31",
-      noticePeriodDays: 90,
-      securityDeposit: 15000,
-      securityDepositStatus: "Received",
-      gracePeriodDays: 7,
-      maintenanceResponsibility: "Landlord",
-      utilityResponsibility: "Tenant",
-      electricityMeter: "KM-448812",
-      waterMeter: "KW-220913",
-      propertyManager: "Sarah Al-Kuwari",
-      pmContact: "+974 3344 5566",
-    },
-  ],
-  cheques: [
-    { id: "pdc-1", chequeNumber: "QNB-001234", bank: "Qatar National Bank (QNB)", amount: 15000, dueDate: "2026-01-01", label: "Q1 2026 Rent", status: "cleared", rawStatus: "Cleared" },
-    { id: "pdc-2", chequeNumber: "QNB-001235", bank: "Qatar National Bank (QNB)", amount: 15000, dueDate: "2026-04-01", label: "Q2 2026 Rent", status: "cleared", rawStatus: "Cleared" },
-    { id: "pdc-3", chequeNumber: "QNB-001236", bank: "Qatar National Bank (QNB)", amount: 15000, dueDate: "2026-07-01", label: "Q3 2026 Rent", status: "cleared", rawStatus: "Cleared" },
-    { id: "pdc-4", chequeNumber: "QNB-001237", bank: "Qatar National Bank (QNB)", amount: 15000, dueDate: "2026-10-01", label: "Q4 2026 Rent", status: "deposited", rawStatus: "Deposited" },
-  ],
-};
 
 export function daysUntil(d?: string | null) {
   if (!d) return null;
